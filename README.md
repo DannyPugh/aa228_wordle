@@ -12,7 +12,7 @@ model: https://pypi.org/project/wordle-python/
 
 
 
-#Update 3-10-23:
+## Update 3-10-23:
 
 
 basically after talking with the CA last week she recommended having some kind of bench mark case so like something that just make random guesses within the rules of the game and then our optimized agent. She said POMDP has been used for wordle in the past.
