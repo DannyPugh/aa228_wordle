@@ -11,6 +11,16 @@ Using Wordle Library for our model, we are looking into Online planning specific
 model: https://pypi.org/project/wordle-python/
 
 
+## Update 3-12-23
+
+WordleBrick
+
+picks random first guess
+using particle filtering to reduce possible states
+make random guess
+repeat
+
+
 
 ## Update 3-10-23:
 
@@ -37,5 +47,4 @@ program WordlePro
 guess based on particle filter to update belief and Mani Carlo search for best action
     
 first guess based on value iteration of wordle dictionary state space
-
 
