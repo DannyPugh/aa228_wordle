@@ -22,8 +22,8 @@ def visualize_map(data, rotate = False):
     else:
         ax.imshow(data)
 
-def get_state_space(n):
-    return (1+2+3+4+5)*((3*n)**5)
+def get_state_space(n): # where n is the number of letters in our alphabet
+    return (1+2+3+4+5+6)*((3*n)**5)
 
 def make_wordle_csv():
     df = open('wordle_dict.csv')
