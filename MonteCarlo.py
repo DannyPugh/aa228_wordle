@@ -5,23 +5,23 @@ from numpy import inf, sqrt, log
 
 class MDP:
     def __init__(self, S, A, T, R, y, U, TR):
-        self.S  = S     # state space
-        self.A  = A     # action space
+        self.S  = S     # state space (list)
+        self.A  = A     # action space (list)
         self.T  = T     # transition function
         self.R  = R     # reward function
         self.y  = y     # discount factor
-        self.U  = U     # value function
-        self.TR = TR    # sample transition and reward
+        self.U  = U     # value function 
+        self.TR = TR    # sample transition and reward (function)
 
 class MonteCarloTreeSearch:
     def __init__(self, N, Q, d, m, c, U, P = MDP()):
-        self.N  = N     # visit counts (dictionary)
-        self.Q  = Q     # action value estimates
+        self.N  = N     # visit counts (start as empty dictionary)
+        self.Q  = Q     # action value estimates (start as empty dictionary)
         self.d  = d     # depth
         self.m  = m     # number of simulations
         self.c  = c     # exploration constant
-        self.U  = U     # value function estimate
-        self.P = P      # Problem
+        self.U  = U     # value function estimate (initialize to zero???)
+        self.P = P      # Problem initialize to MDP of problem
 
     def bonus(self, Nsa, Ns):
         if Nsa == 0:
@@ -46,7 +46,7 @@ class MonteCarloTreeSearch:
             return self.U(s)
         a = self.explore(s)
         s_prime, r = self.P.TR(s,a)
-        q = r + self.P.y*self.simulate(s_prime, self.d-1)
+        q = r + self.P.y*self.simulate(s_prime, d-1)
         self.N[(s,a)] += 1
         self.Q[(s,a)] += (q - self.Q[(s,a)])/self.N[(s,a)]
         return q
