@@ -1,13 +1,14 @@
 import pandas as pd
 import wordle
 import wordle
+import utils as u
 
 class WordleDict:
     '''
     Class with wordle dictionary and some functionality around it
     '''
-    def __init__(self):
-        self.wordle_dict = pd.read_csv('wordle_df.csv', index_col = 0)
+    def __init__(self, dict = ''):
+        self.wordle_dict = pd.read_csv(f'wordle_df{dict}.csv', index_col = 0)
 
     def get_random_word(self):
         '''
@@ -78,20 +79,22 @@ class WordlePro(WordleDict):
         return "words"
 
 if __name__ == "__main__":
-    this = WordleBrick()
-    status = False
 
-    while status == False:
-        game = wordle.Wordle(random_daily=True, real_words = True)
+    count_list = []
+    for i in range(100):
+        count = 0
+        this = WordleBrick("")
+        # game = wordle.Wordle(word = this.get_random_word(), real_words = True)
         # game = wordle.Wordle(word = 'hello', real_words = True)
-        # game = wordle.Wordle(word = 'metro', real_words = True)
-        # results = game.send_guess(this.make_first_guess('recto'))
-        results = game.send_guess(this.make_first_guess())
-
+        game = wordle.Wordle(word = 'metro', real_words = True)
+        results = game.send_guess(this.make_first_guess('recto'))
+        # results = game.send_guess(this.make_first_guess())
         for guess in range(6):
             if results[1] == True:
-                status = True
                 break
             results = game.send_guess(this.make_guess(results))
-            
-    print(f'Wordle is {this.guess}')
+            count += 1
+        count_list.append(count)
+        print(f'wordle is {this.guess}')
+
+    u.make_plot(count_list, 5)
