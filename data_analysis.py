@@ -89,15 +89,15 @@ def find_argmax(df, exclude = []):
 
 df = pd.read_csv('wordle_df.csv', index_col = 0)
 
-max_list = []
-for i in range(3):
-    max_list.append(find_argmax(df, max_list))
-print(max_list)
+# max_list = []
+# for i in range(3):
+#     max_list.append(find_argmax(df, max_list))
+# print(max_list)
 
-df = rows_contain_multi(max_list,df)
+# df = rows_contain_multi(max_list,df)
 
-df = df.sort_index()
-df.to_csv('wordle_df_small.csv')
+df = df.sample(80).sort_index().reset_index(drop = True)
+df.to_csv('wordle_df_xsmall.csv')
 
 stats = get_stats(df)
 visualize_map(stats)

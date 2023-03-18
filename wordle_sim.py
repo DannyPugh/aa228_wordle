@@ -5,6 +5,7 @@ import utils as u
 import numpy as np
 import MonteCarlo as mc
 from numpy import sqrt
+import display as dsp
 
 class WordleDict:
     '''
@@ -85,31 +86,35 @@ class WordlePro(WordleDict):
 
     def wordicle_filter(self, results):
         word_list = pd.DataFrame(columns=self.wordle_dict.columns)
-        belief_index = []
         for _, word in self.wordle_dict.iterrows():
             test = wordle.Wordle(word = self._to_string(word), real_words = True)
             test_results = test.send_guess(self.guess) 
             if results == test_results:
                 word_list = word_list.append(word)
-                belief_index.append(self.MDP.S.index(self._to_string(word)))
-        self.b = list(np.zeros(len(self.MDP.S)))
-        for i in belief_index:
-            self.b[i] = 1/len(belief_index)
         self.wordle_dict = word_list
 
-    def get_reward(self, s, a):
-        game = wordle.Wordle(word = s, real_words = True)
+    def TR(self, s, a, target):
+        game = wordle.Wordle(word = target, real_words = True)
+        results_prev = game.send_guess(s)
         results = game.send_guess(a)
-        o, r = self.process_results(results)
-        s_prime = s
-        return s_prime, r, o
+        count_prev = 0
+        count = 0
+        for _, word in self.wordle_dict.iterrows():
+            test = wordle.Wordle(word = self._to_string(word), real_words = True)
 
-    def TR(self, s, a):
-        game = wordle.Wordle(word = s, real_words = True)
-        results = game.send_guess(a)
-        o, r = self.process_results(results)
-        s_prime = s
-        return s_prime, r, o
+            if s != '-----':
+                test_results_prev = test.send_guess(s) 
+                if results_prev == test_results_prev:
+                    count_prev += 1
+            else:
+                count_prev = len(self.wordle_dict)
+
+            test_results = test.send_guess(a)
+            if results == test_results:
+                count += 1
+        r = count_prev - count
+        s_prime = a
+        return s_prime, r
 
     def make_first_guess(self):
         '''
@@ -121,11 +126,15 @@ class WordlePro(WordleDict):
         S = []
         A = []
         U = {}
+        s = ('-----')
         for i in range(len(self.wordle_dict)):
             word = self._to_string(self.wordle_dict.iloc[i])
             S.append(word)
             A.append(word)
             U[word] = 0
+        S.append('-----')
+        U['-----'] = 0
+        
         self.b = list(np.ones(len(S))/len(S))
         self.h = ()
         self.MDP = mc.MDP(
@@ -145,47 +154,90 @@ class WordlePro(WordleDict):
             U = self.MDP.U,
             P = self.MDP
             )
-        self.guess = self.MC.monte_carlo(s)[1]
-        return self.guess
+        self.guess = self.MC.monte_carlo(s)
 
-    def make_guess(self, results):
+    def make_guess(self, results, s):
         '''
         makes guess based on results and belief updates
         returns guess as str()
         '''
         # update belief using particle filter
         # determine next action based on Monti Carlo Tree search
+                # make optimal first guess
+        # TODO: data analysis + learning to determine optimal first guess
         self.wordicle_filter(results)
+        S = []
+        A = []
+        U = {}
+        for i in range(len(self.wordle_dict)):
+            word = self._to_string(self.wordle_dict.iloc[i])
+            S.append(word)
+            A.append(word)
+            U[word] = 0
+        self.MDP = mc.MDP(
+            S, 
+            A, 
+            [], 
+            [],
+            1, 
+            U = U, 
+            TR = self.TR)
+        S.append(s)
+        U[s] = 0
+        self.MC = mc.MonteCarloTreeSearch(
+            N = {}, 
+            Q = {}, 
+            d = 6, 
+            m = len(A)*len(S), 
+            c = 5, 
+            U = self.MDP.U,
+            P = self.MDP
+            )
         self.MC.d -= 1
-        self.h = (self.guess, self.process_results(results)[0])
-        self.guess = self.MC.monte_carlo(self.b, self.h)[1]
-        return self.guess
+        self.guess = self.MC.monte_carlo(s)
 
 
 
 
 if __name__ == "__main__":
-
+    disp = dsp.Display()
     if False:
-        this = WordlePro("_small")
-        # game = wordle.Wordle(word = this.get_random_word(), real_words = True)
-        # game = wordle.Wordle(word = 'hello', real_words = True)
-        game = wordle.Wordle(word = 'early', real_words = True)
-        guess = this.make_first_guess()
-        results = game.send_guess(guess)
-        # results = game.send_guess(this.make_first_guess())
-        for guess in range(6):
-            if results[1] == True:
-                break
-            guess = this.make_guess(results)
-            results = game.send_guess(guess)
-            print(f'guess is {guess}')
+        if False:
+            this = WordlePro("_small")
+            # game = wordle.Wordle(word = 'hello', real_words = True)
+            # small.csv guess = 'sells'
+            # game = wordle.Wordle(word = 'early', real_words = True)
+            this.make_first_guess()
+            first_guess = this.guess
+        else:
+            first_guess = 'ropes' #small
+            # first_guess = 'boers' #xsmall
+
+        count_list = []
+        for i in range(100):
+            disp.reset_count()
+            this = WordlePro("_small")
+            game = wordle.Wordle(word = this.get_random_word(), real_words = True)
+            this.guess = first_guess
+            results = game.send_guess(this.guess)
+            # results = game.send_guess(this.make_first_guess())
+            for _ in range(6):
+                if results[1] == True:
+                    break
+                this.make_guess(results, this.guess)
+                results = game.send_guess(this.guess)
+                disp.increment_count()
+
+            print(f'guess is {this.guess}')
+
+        disp.get_count_list()
+        
 
     if True:
         count_list = []
-        for i in range(4000):
+        for i in range(100):
             count = 0
-            this = WordleBrick("")
+            this = WordleBrick("_small")
             game = wordle.Wordle(word = this.get_random_word(), real_words = True)
             # game = wordle.Wordle(word = 'hello', real_words = True)
             # game = wordle.Wordle(word = 'metro', real_words = True)
