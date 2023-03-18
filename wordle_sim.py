@@ -54,7 +54,7 @@ class WordleBrick(WordleDict):
 
     def make_first_guess(self, guess = ''):
         '''
-        makes a randoem first guess from wordle dictionary
+        makes a random first guess from wordle dictionary
         '''
         if guess == '':
             self.guess = self.get_random_word()
@@ -142,15 +142,15 @@ class WordlePro(WordleDict):
             A, 
             [], 
             [],
-            1, 
+            y = 0.7, # discount factor
             U = U, 
             TR = self.TR)
         self.MC = mc.MonteCarloTreeSearch(
             N = {}, 
             Q = {}, 
-            d = 6, 
-            m = 2000, 
-            c = 5, 
+            d = 6, # depth
+            m = 2000, # number of simulations
+            c = 5, # exploration constant
             U = self.MDP.U,
             P = self.MDP
             )
@@ -179,7 +179,7 @@ class WordlePro(WordleDict):
             A, 
             [], 
             [],
-            1, 
+            y = 0.7, # discount factor
             U = U, 
             TR = self.TR)
         S.append(s)
@@ -196,12 +196,10 @@ class WordlePro(WordleDict):
         self.MC.d -= 1
         self.guess = self.MC.monte_carlo(s)
 
-
-
-
 if __name__ == "__main__":
     disp = dsp.Display()
-    if False:
+    runs = 1000 # number of games played
+    if True:
         if False:
             this = WordlePro("_small")
             # game = wordle.Wordle(word = 'hello', real_words = True)
@@ -214,12 +212,13 @@ if __name__ == "__main__":
             # first_guess = 'boers' #xsmall
 
         count_list = []
-        for i in range(100):
+        for i in range(runs):
             disp.reset_count()
             this = WordlePro("_small")
             game = wordle.Wordle(word = this.get_random_word(), real_words = True)
             this.guess = first_guess
             results = game.send_guess(this.guess)
+            disp.increment_count()
             # results = game.send_guess(this.make_first_guess())
             for _ in range(6):
                 if results[1] == True:
@@ -230,12 +229,11 @@ if __name__ == "__main__":
 
             print(f'guess is {this.guess}')
 
-        disp.get_count_list()
+        counts_pro = u.frequency_array(disp.count_list)
         
-
     if True:
         count_list = []
-        for i in range(100):
+        for i in range(runs):
             count = 0
             this = WordleBrick("_small")
             game = wordle.Wordle(word = this.get_random_word(), real_words = True)
@@ -243,6 +241,7 @@ if __name__ == "__main__":
             # game = wordle.Wordle(word = 'metro', real_words = True)
             # results = game.send_guess(this.make_first_guess('recto'))
             results = game.send_guess(this.make_first_guess())
+            count += 1
             for guess in range(6):
                 if results[1] == True:
                     break
@@ -251,4 +250,7 @@ if __name__ == "__main__":
             count_list.append(count)
             print(f'wordle is {this.guess}')
 
-        u.make_plot(count_list, 5)
+        counts_benchmark = u.frequency_array(count_list)
+
+    
+    u.plot_guess_count(counts_benchmark, counts_pro)
