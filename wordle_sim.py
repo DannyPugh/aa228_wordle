@@ -122,7 +122,6 @@ class WordlePro(WordleDict):
         make optimal first guess using Monte Carlo simulation
         '''
         # make optimal first guess
-        # TODO: data analysis + learning to determine optimal first guess
         S = []
         A = []
         U = {}
@@ -150,7 +149,7 @@ class WordlePro(WordleDict):
             Q = {}, 
             d = 6, # depth
             m = 2000, # number of simulations
-            c = 5, # exploration constant
+            c = 2, # exploration constant
             U = self.MDP.U,
             P = self.MDP
             )
@@ -164,7 +163,6 @@ class WordlePro(WordleDict):
         # update belief using particle filter
         # determine next action based on Monti Carlo Tree search
                 # make optimal first guess
-        # TODO: data analysis + learning to determine optimal first guess
         self.wordicle_filter(results)
         S = []
         A = []
@@ -189,7 +187,7 @@ class WordlePro(WordleDict):
             Q = {}, 
             d = 6, 
             m = len(A)*len(S), 
-            c = 5, 
+            c = 2, 
             U = self.MDP.U,
             P = self.MDP
             )
@@ -200,7 +198,7 @@ if __name__ == "__main__":
     disp = dsp.Display()
     runs = 1000 # number of games played
     if True:
-        if False:
+        if False: 
             this = WordlePro("_small")
             # game = wordle.Wordle(word = 'hello', real_words = True)
             # small.csv guess = 'sells'
@@ -208,7 +206,9 @@ if __name__ == "__main__":
             this.make_first_guess()
             first_guess = this.guess
         else:
-            first_guess = 'ropes' #small
+           # first_guess = 'ropes' #small
+            this = WordlePro("_small") # only for random guess
+            first_guess = this.get_random_word() # random starting word
             # first_guess = 'boers' #xsmall
 
         count_list = []

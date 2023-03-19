@@ -40,16 +40,9 @@ def plot_guess_count(benchmark_counts, mc_counts):
     
     barWidth = 0.35 # set width of bar
     x = range(1,7)
-    # plt.bar(x, benchmark_counts[:,0], label='Benchmark Counts')
-    # plt.bar(x, mc_counts[:,0], label='Monte Carlo Counts')
-    # plt.legend()
-    # plt.xlabel("Guess Distribution")
-    # plt.ylabel("Frequency")
-    # plt.show()
 
-
-
-    # fig = plt.subplots(figsize =(12, 8))
+    df = pd.DataFrame({'benchmark': benchmark_counts[:,0], 'monte carlo': mc_counts[:,0]})
+    df.to_csv('1000Runs_RandWord_C2.csv')
     
     
     # Set position of bar on X axis
@@ -62,6 +55,7 @@ def plot_guess_count(benchmark_counts, mc_counts):
     plt.bar(br2, mc_counts[:,0], color ='g', width = barWidth,
             edgecolor ='grey', label ='Monte Carlo Counts')
 
+
     # Adding Xticks
     plt.xlabel('Guess Distribution', fontweight ='bold', fontsize = 15)
     plt.ylabel('Frequency', fontweight ='bold', fontsize = 15)
@@ -70,15 +64,6 @@ def plot_guess_count(benchmark_counts, mc_counts):
     
     plt.legend()
     plt.show()
-
-
-
-
-
-
-
-
-
 
 def frequency_array(arr):
     freq_arr = np.zeros((6, 1), dtype=int) # Initialize an array of zeros with size 5x1
